@@ -262,7 +262,7 @@ lazy val scaldingArgs = module("args")
 lazy val scaldingDate = module("date")
 
 lazy val cascadingVersion =
-  System.getenv.asScala.getOrElse("SCALDING_CASCADING_VERSION", "2.6.1")
+  System.getenv.asScala.getOrElse("SCALDING_CASCADING_VERSION", "4.5.1")
 
 lazy val scaldingBenchmarks = module("benchmarks")
   .settings(
@@ -307,9 +307,9 @@ lazy val scaldingBase = module("base")
 lazy val scaldingCore = module("core")
   .settings(
     libraryDependencies ++= Seq(
-      "cascading" % "cascading-core" % cascadingVersion,
-      "cascading" % "cascading-hadoop" % cascadingVersion,
-      "cascading" % "cascading-local" % cascadingVersion,
+      "net.wensel" % "cascading-core" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3" % cascadingVersion,
+      "net.wensel" % "cascading-local" % cascadingVersion,
       "com.twitter" % "chill-hadoop" % chillVersion,
       "com.twitter" % "chill-java" % chillVersion,
       "com.twitter" %% "chill-bijection" % chillVersion,
