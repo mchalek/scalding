@@ -59,8 +59,8 @@ val sharedSettings = Seq(
   organization := "com.twitter",
   scalaVersion := "2.11.12",
   crossScalaVersions := Seq(scalaVersion.value, "2.12.14"),
-  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-  doc / javacOptions := Seq("-source", "1.8"),
+  javacOptions ++= Seq("-source", "11", "-target", "11"),
+  doc / javacOptions := Seq("-source", "11"),
   versionScheme := Some("early-semver"),
   Compile / compile / wartremoverErrors ++= Seq(
     // Wart.OptionPartial, // this kills the ability to use serialization macros
