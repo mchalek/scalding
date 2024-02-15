@@ -27,6 +27,7 @@ import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -198,13 +199,13 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
   public boolean createResource(JobConf jobConf) throws IOException {
     HBaseAdmin hBaseAdmin = getHBaseAdmin(jobConf);
 
-    if (hBaseAdmin.tableExists(tableName)) {
+    if (hBaseAdmin.tableExists(TableName.valueOf(tableName))) {
       return true;
     }
 
     LOG.info("creating hbase table: {}", tableName);
 
-    HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+    HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
 
     String[] familyNames = ((HBaseScheme) getScheme()).getFamilyNames();
 
@@ -225,7 +226,7 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
 
   @Override
   public boolean resourceExists(JobConf jobConf) throws IOException {
-    return getHBaseAdmin(jobConf).tableExists(tableName);
+    return getHBaseAdmin(jobConf).tableExists(TableName.valueOf(tableName));
   }
 
   @Override
