@@ -308,7 +308,8 @@ lazy val scaldingCore = module("core")
   .settings(
     libraryDependencies ++= Seq(
       "net.wensel" % "cascading-core" % cascadingVersion,
-      "net.wensel" % "cascading-hadoop3" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion,
       "net.wensel" % "cascading-local" % cascadingVersion,
       "com.twitter" % "chill-hadoop" % chillVersion,
       "com.twitter" % "chill-java" % chillVersion,
@@ -517,6 +518,8 @@ lazy val scaldingHRaven = module("hraven")
       "org.apache.hbase" % "hbase" % hbaseVersion,
       "org.apache.hbase" % "hbase-client" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-common" % hbaseVersion % "provided",
+      "org.apache.hbase" % "hbase-hadoop2-compat" % hbaseVersion % "provided",
+      "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-server" % hbaseVersion % "provided",
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided"
@@ -631,8 +634,11 @@ lazy val maple = Project(
       "org.apache.hbase" % "hbase" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-client" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-common" % hbaseVersion % "provided",
+      "org.apache.hbase" % "hbase-hadoop2-compat" % hbaseVersion % "provided",
+      "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-server" % hbaseVersion % "provided",
-      "cascading" % "cascading-hadoop" % cascadingVersion
+      "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion,
     )
   )
 )
@@ -649,7 +655,8 @@ lazy val executionTutorial = Project(
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-      "cascading" % "cascading-hadoop" % cascadingVersion
+      "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion,
     )
   )
 ).dependsOn(scaldingCore)
