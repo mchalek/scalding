@@ -33,7 +33,7 @@ import com.twitter.algebird.{MapAlgebra, OrVal}
 import com.twitter.scalding.tap.ScaldingHfs
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileStatus, Path, PathFilter}
-import org.apache.hadoop.mapred.{JobConf, OutputCollector, RecordReader}
+import org.apache.hadoop.mapred.{OutputCollector, RecordReader}
 import org.slf4j.LoggerFactory
 import scala.util.{Failure, Success, Try}
 
@@ -47,7 +47,7 @@ abstract class SchemedSource extends Source {
     throw ModeException("Cascading local mode not supported for: " + toString)
 
   /** The scheme to use if the source is on hdfs. */
-  def hdfsScheme: Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _] =
+  def hdfsScheme: Scheme[Configuration, RecordReader[_, _], OutputCollector[_, _], _, _] =
     throw ModeException("Cascading Hadoop mode not supported for: " + toString)
 
   // The mode to use for output taps determining how conflicts with existing output are handled.
@@ -56,7 +56,7 @@ abstract class SchemedSource extends Source {
 
 trait HfsTapProvider {
   def createHfsTap(
-      scheme: Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _],
+      scheme: Scheme[Configuration, RecordReader[_, _], OutputCollector[_, _], _, _],
       path: String,
       sinkMode: SinkMode
   ): Hfs =
@@ -65,8 +65,8 @@ trait HfsTapProvider {
 
 private[scalding] object CastFileTap {
   // The scala compiler has problems with the generics in Cascading
-  def apply(tap: FileTap): Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]] =
-    tap.asInstanceOf[Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]]]
+  def apply(tap: FileTap): Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]] =
+    tap.asInstanceOf[Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]]
 }
 
 /**
@@ -88,7 +88,7 @@ trait LocalSourceOverride extends SchemedSource {
    * @return
    *   A tap.
    */
-  def createLocalTap(sinkMode: SinkMode): Tap[JobConf, _, _] = {
+  def createLocalTap(sinkMode: SinkMode): Tap[Configuration, _, _] = {
     val taps = localPaths.map { p: String =>
       CastFileTap(new FileTap(localScheme, p, sinkMode))
     }.toList
@@ -344,8 +344,8 @@ abstract class FileSource extends SchemedSource with LocalSourceOverride with Hf
       case Hdfs(false, conf) => hdfsPaths.filter(pathIsGood(_, conf))
     }
 
-  protected def createHdfsReadTap(hdfsMode: Hdfs): Tap[JobConf, _, _] = {
-    val taps: List[Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]]] =
+  protected def createHdfsReadTap(hdfsMode: Hdfs): Tap[Configuration, _, _] = {
+    val taps: List[Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]] =
       goodHdfsPaths(hdfsMode).toList.map(path => CastHfsTap(createHfsTap(hdfsScheme, path, sinkMode)))
     taps.size match {
       case 0 => {
@@ -353,7 +353,8 @@ abstract class FileSource extends SchemedSource with LocalSourceOverride with Hf
         // validateTaps. Return an InvalidSource here so the Job constructor does not fail.
         // In the worst case if the flow plan is misconfigured,
         // openForRead on mappers should fail when using this tap.
-        new InvalidSourceTap(hdfsPaths)
+        new InvalidSourceTap(hdfsPaths).asInstanceOf[
+        Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]]
       }
       case 1 => taps.head
       case _ => new ScaldingMultiSourceTap(taps)
@@ -361,10 +362,10 @@ abstract class FileSource extends SchemedSource with LocalSourceOverride with Hf
   }
 }
 
-class ScaldingMultiSourceTap(taps: Seq[Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]]])
+class ScaldingMultiSourceTap(taps: Seq[Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]])
     extends MultiSourceTap[
-      Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-      JobConf,
+      Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+      Configuration,
       RecordReader[_, _]
     ](taps: _*) {
   private final val randomId = UUID.randomUUID.toString
@@ -455,14 +456,14 @@ trait SuccessFileSource extends FileSource {
  * Hadoop tap outside of Hadoop in the Cascading local mode
  */
 trait LocalTapSource extends LocalSourceOverride {
-  override def createLocalTap(sinkMode: SinkMode): Tap[JobConf, _, _] = {
+  override def createLocalTap(sinkMode: SinkMode): Tap[Configuration, _, _] = {
     val taps = localPaths.map { p =>
       new LocalTap(
         p,
         // kmchale: WARNING this could break something (but i don't think it will :) )
         hdfsScheme.asInstanceOf[Scheme[Configuration, RecordReader[_, _], OutputCollector[_, _], _, _]],
         sinkMode
-      ).asInstanceOf[Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]]]
+      ).asInstanceOf[Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]]
     }.toSeq
 
     taps match {
