@@ -223,7 +223,7 @@ public class HBaseScheme
         Tuple tuple = values.getTuple();
 
         ImmutableBytesWritable valueBytes = (ImmutableBytesWritable) tuple.getObject(j);
-        put.add(Bytes.toBytes(familyNames[i]), Bytes.toBytes((String) fields.get(j)), valueBytes.get());
+        put.addColumn(Bytes.toBytes(familyNames[i]), Bytes.toBytes((String) fields.get(j)), valueBytes.get());
       }
     }
 
