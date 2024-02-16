@@ -252,7 +252,7 @@ trait CascadingExtensions {
 
     import cascading.stats.{CascadeStats, CascadingStats, FlowStats}
 
-    def apply(stats: CascadingStats): JobStats = {
+    def apply(stats: CascadingStats[_]): JobStats = {
       val m: Map[String, Any] = statsMap(stats)
       new JobStats(stats match {
         case cs: CascadeStats => m
@@ -260,7 +260,7 @@ trait CascadingExtensions {
       })
     }
 
-    private def counterMap(stats: CascadingStats): Map[String, Map[String, Long]] =
+    private def counterMap(stats: CascadingStats[_]): Map[String, Map[String, Long]] =
       stats.getCounterGroups.asScala.map { group =>
         (
           group,
@@ -274,7 +274,7 @@ trait CascadingExtensions {
         )
       }.toMap
 
-    private def statsMap(stats: CascadingStats): Map[String, Any] =
+    private def statsMap(stats: CascadingStats[_]): Map[String, Any] =
       Map(
         "counters" -> counterMap(stats),
         "duration" -> stats.getDuration,
