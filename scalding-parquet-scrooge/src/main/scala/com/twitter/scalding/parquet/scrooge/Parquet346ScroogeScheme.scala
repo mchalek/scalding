@@ -31,7 +31,7 @@ class Parquet346ScroogeScheme[T <: ThriftStruct](config: ParquetValueScheme.Conf
     extends ParquetScroogeScheme[T](config) {
 
   override def sourceConfInit(
-      fp: FlowProcess[JobConf],
+      fp: FlowProcess[_ <: JobConf],
       tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
       jobConf: JobConf
   ): Unit = {

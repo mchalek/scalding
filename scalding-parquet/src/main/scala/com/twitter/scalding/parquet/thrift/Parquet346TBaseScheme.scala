@@ -34,12 +34,14 @@ class Parquet346TBaseScheme[T <: TBase[_, _]](config: ParquetValueScheme.Config[
     extends ParquetTBaseScheme[T](config) {
 
   override def sourceConfInit(
-      fp: FlowProcess[JobConf],
+      fp: FlowProcess[_ <: JobConf],
       tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
       jobConf: JobConf
   ): Unit = {
 
-    super.sourceConfInit(fp, tap, jobConf)
+    super.sourceConfInit(
+      fp.asInstanceOf[FlowProcess[JobConf]],
+      tap, jobConf)
 
     // Use the fixed record converter instead of the one set in super
     ThriftReadSupport.setRecordConverterClass(jobConf, classOf[Parquet346TBaseRecordConverter[_]])
