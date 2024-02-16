@@ -25,7 +25,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.mapred.FileInputFormat;
@@ -53,7 +54,7 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
   public static final String SCHEME = "hbase";
 
   /** Field hBaseAdmin */
-  private transient HBaseAdmin hBaseAdmin;
+  private transient Admin hBaseAdmin;
 
   /** Field hostName */
   private String quorumNames;
@@ -135,10 +136,10 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
     return new Path(SCHEME + ":/" + tableName.replaceAll(":", "_"));
   }
 
-  protected HBaseAdmin getHBaseAdmin(JobConf conf) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
+  protected Admin getHBaseAdmin(JobConf conf) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
     if (hBaseAdmin == null) {
       Configuration hbaseConf = HBaseConfiguration.create(conf);
-      hBaseAdmin = new HBaseAdmin(hbaseConf);
+      hBaseAdmin = ConnectionFactory.createConnection(hbaseConf).getAdmin();
     }
 
     return hBaseAdmin;
@@ -197,7 +198,7 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
 
   @Override
   public boolean createResource(JobConf jobConf) throws IOException {
-    HBaseAdmin hBaseAdmin = getHBaseAdmin(jobConf);
+    Admin hBaseAdmin = getHBaseAdmin(jobConf);
 
     if (hBaseAdmin.tableExists(TableName.valueOf(tableName))) {
       return true;
