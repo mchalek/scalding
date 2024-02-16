@@ -57,6 +57,8 @@ public class ScaldingHfs extends cascading.tap.hadoop.Hfs {
 
   @Override
   public TupleEntryIterator openForRead(FlowProcess<? extends Configuration> flowProcess, RecordReader input) throws IOException {
-    return new HadoopTupleEntrySchemeIterator(flowProcess, this, input);
+    return new HadoopTupleEntrySchemeIterator(
+            (FlowProcess<Configuration>) flowProcess,
+            this, input);
   }
 }
