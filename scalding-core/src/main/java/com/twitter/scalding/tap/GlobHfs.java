@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
@@ -22,7 +21,7 @@ public class GlobHfs extends ScaldingHfs {
     super(scheme);
   }
 
-  public GlobHfs(Scheme<JobConf, RecordReader, OutputCollector, ?, ?> scheme, String stringPath) {
+  public GlobHfs(Scheme<Configuration, RecordReader, OutputCollector, ?, ?> scheme, String stringPath) {
     super(scheme, stringPath);
   }
 
