@@ -92,7 +92,10 @@ object CascadingBinaryComparator {
     def getDescriptionsForMissingOrdSer[U](bfs: BaseFlowStep[U]): Option[String] =
       // does this job have any Splices without OrderedSerialization:
       if (
-        bfs.getGraph.vertexSet.asScala.exists {
+        // between getElementGraph and getNodeGraph, the former appears to be
+        // correct given comparisons with earlier getGraph method (Which returned
+        // a graph of FlowElement nodes)
+        bfs.getElementGraph.vertexSet.asScala.exists {
           case gb: GroupBy => check(gb).isFailure
           case cg: CoGroup => check(cg).isFailure
           case _           => false // only do sorting in groupBy/cogroupBy
