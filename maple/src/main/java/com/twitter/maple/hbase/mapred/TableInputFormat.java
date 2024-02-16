@@ -28,6 +28,8 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.mapred.TableInputFormatBase;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobConfigurable;
@@ -60,7 +62,11 @@ public class TableInputFormat extends TableInputFormatBase implements
     }
     setInputColumns(m_cols);
     try {
-      setHTable(new HTable(HBaseConfiguration.create(job), tableName));
+      initializeTable(
+          ConnectionFactory
+            .createConnection(HBaseConfiguration.create(job)),
+          TableName.valueOf(tableName)
+      );
     } catch (Exception e) {
       LOG.error(StringUtils.stringifyException(e));
     }
@@ -74,7 +80,7 @@ public class TableInputFormat extends TableInputFormatBase implements
     }
 
     // connected to table?
-    if (getHTable() == null) {
+    if (getTable() == null) {
       throw new IOException("could not connect to table '" +
         tableName + "'");
     }
