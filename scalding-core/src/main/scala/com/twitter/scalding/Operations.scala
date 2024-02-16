@@ -18,7 +18,7 @@ package com.twitter.scalding {
   import cascading.operation._
   import cascading.tuple._
   import cascading.flow._
-  import cascading.pipe.assembly.AggregateBy
+  import cascading.pipe.assembly.{AggregateBy, AggregateByProps}
   import com.twitter.chill.MeatLocker
   import scala.collection.JavaConverters._
 
@@ -327,7 +327,10 @@ package com.twitter.scalding {
 
   object MapsideCache {
     val DEFAULT_CACHE_SIZE = 100000
-    val SIZE_CONFIG_KEY = AggregateBy.AGGREGATE_BY_THRESHOLD
+
+    // kmchale: changing from AggregateBy.AGGREGATE_BY_THRESHOLD based on
+    // deprecation notice found here: https://github.com/Cascading/cascading/blob/171eab81a74298ea2a8d7327f046fd4e9887c1b4/cascading-core/src/main/java/cascading/pipe/assembly/AggregateBy.java#L121
+    val SIZE_CONFIG_KEY = AggregateByProps.AGGREGATE_BY_CAPACITY
     val ADAPTIVE_CACHE_KEY = "scalding.mapsidecache.adaptive"
 
     private def getCacheSize(fp: FlowProcess[_]): Int =
