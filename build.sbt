@@ -338,6 +338,21 @@ lazy val scaldingCore = module("core")
     scaldingDagon
   )
 
+  lazy val scaldingEtsy = project.aggregate(
+    scaldingArgs,
+    scaldingBase,
+    scaldingDate,
+    scaldingSerialization,
+    maple,
+    scaldingQuotation,
+    scaldingDagon,
+    scaldingCore,
+    scaldingParquet,
+    scaldingParquetScrooge,
+    scaldingParquetScroogeFixtures
+  )
+
+
 lazy val scaldingCats = module("cats")
   .settings(
     libraryDependencies ++= Seq(
