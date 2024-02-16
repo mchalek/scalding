@@ -65,7 +65,7 @@ class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader
 
   override def getModifiedTime(conf: JobConf): Long = 0L
 
-  override def openForRead(flow: FlowProcess[JobConf], input: RecordReader[_, _]): TupleEntryIterator =
+  override def openForRead(flow: FlowProcess[_ <: JobConf], input: RecordReader[_, _]): TupleEntryIterator =
     throw new InvalidSourceException("Encountered InvalidSourceTap!", e)
 
   override def resourceExists(conf: JobConf): Boolean = false
@@ -81,7 +81,7 @@ class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader
   // 4. source.validateTaps (throws InvalidSourceException)
   // In the worst case if the flow plan is misconfigured,
   // openForRead on mappers should fail when using this tap.
-  override def sourceConfInit(flow: FlowProcess[JobConf], conf: JobConf): Unit = {
+  override def sourceConfInit(flow: FlowProcess[_ <: JobConf], conf: JobConf): Unit = {
     conf.setInputFormat(classOf[InvalidInputFormat])
     super.sourceConfInit(flow, conf)
   }
@@ -295,7 +295,7 @@ class NullTap[Config, Input, Output, SourceContext, SinkContext]
     ) {
 
   def getIdentifier = "nullTap"
-  def openForWrite(flowProcess: FlowProcess[Config], output: Output) =
+  def openForWrite(flowProcess: FlowProcess[_ <: Config], output: Output) =
     new TupleEntryCollector {
       override def add(te: TupleEntry): Unit = ()
       override def add(t: CTuple): Unit = ()

@@ -17,6 +17,7 @@ package com.twitter.scalding
 
 import cascading.tap.SinkMode
 import org.apache.hadoop.mapred.JobConf
+import org.apache.hadoop.conf.Configuration
 import cascading.flow.FlowProcess
 import org.apache.hadoop.mapred.RecordReader
 import org.apache.hadoop.mapred.OutputCollector
@@ -31,14 +32,14 @@ private[scalding] class ConfPropertiesHfsTap(
     stringPath: String,
     sinkMode: SinkMode
 ) extends ScaldingHfs(scheme, stringPath, sinkMode) {
-  override def sourceConfInit(process: FlowProcess[JobConf], conf: JobConf): Unit = {
+  override def sourceConfInit(process: FlowProcess[_ <: Configuration], conf: Configuration): Unit = {
     sourceConfig.toMap.foreach { case (k, v) =>
       conf.set(k, v)
     }
     super.sourceConfInit(process, conf)
   }
 
-  override def sinkConfInit(process: FlowProcess[JobConf], conf: JobConf): Unit = {
+  override def sinkConfInit(process: FlowProcess[_ <: Configuration], conf: Configuration): Unit = {
     sinkConfig.toMap.foreach { case (k, v) =>
       conf.set(k, v)
     }
