@@ -18,8 +18,10 @@ object Common {
       case t => Seq(t)
     }
 
-  def unrollTaps(step: FlowStep[JobConf]): Seq[Tap[_, _, _]] =
-    unrollTaps(step.getSources.asScala.toSeq)
+  def unrollTaps(step: FlowStep[JobConf]): Seq[Tap[_, _, _]] = {
+    // kmchale note: change getSources to getSourceTaps
+    unrollTaps(step.getSourceTaps.asScala.toSeq)
+  }
 
   def inputSizes(step: FlowStep[JobConf]): Seq[(String, Long)] = {
     val conf = step.getConfig
