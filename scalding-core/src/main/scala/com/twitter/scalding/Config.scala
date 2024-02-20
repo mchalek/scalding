@@ -24,7 +24,7 @@ import com.twitter.chill.config.{ ScalaMapConfig, ConfiguredInstantiator }
 import com.twitter.bijection.{ Base64String, Injection }
 import com.twitter.scalding.filecache.{CachedFile, DistributedCacheFile, HadoopCachedFile}
 
-import cascading.pipe.assembly.AggregateBy
+import cascading.pipe.assembly.AggregateByProps
 import cascading.flow.{ FlowListener, FlowStepListener, FlowProps, FlowStepStrategy }
 import cascading.property.AppProps
 import cascading.tuple.collect.SpillableProps
@@ -132,8 +132,12 @@ trait Config extends Serializable {
    * does not help much (and may hurt, so experiment with disabling to get
    * the best results
    */
-  def setMapSideAggregationThreshold(count: Int): Config =
-    this + (AggregateBy.AGGREGATE_BY_THRESHOLD -> count.toString)
+  def setMapSideAggregationThreshold(count: Int): Config = {
+    // for aggregate-by- changes, see:
+    // deprecation notice found here: https://github.com/Cascading/cascading/blob/171eab81a74298ea2a8d7327f046fd4e9887c1b4/cascading-core/src/main/java/cascading/pipe/assembly/AggregateBy.java#L121
+
+    this + (AggregateByProps.AGGREGATE_BY_CAPACITY -> count.toString)
+  }
 
   /**
    * Set this configuration option to require all grouping/cogrouping

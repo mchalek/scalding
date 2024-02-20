@@ -151,7 +151,10 @@ object ExecutionContext {
   private val LOG: Logger = LoggerFactory.getLogger(ExecutionContext.getClass)
 
   private[scalding] def getDesc[T](baseFlowStep: BaseFlowStep[T]): Seq[String] = {
-    baseFlowStep.getGraph.vertexSet.asScala.flatMap {
+    // between getElementGraph and getNodeGraph, the former appears to be
+    // correct given comparisons with earlier getGraph method (Which returned
+    // a graph of FlowElement nodes)
+    baseFlowStep.getElementGraph.vertexSet.asScala.flatMap {
       case pipe: Pipe => RichPipe.getPipeDescriptions(pipe)
       case _ => List() // no descriptions
     }(collection.breakOut)
