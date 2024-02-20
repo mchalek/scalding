@@ -563,7 +563,9 @@ lazy val maple = Project(
     "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion,
     "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
     "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
-  )
+  ),
+  sources in (Compile, doc) := Seq.empty,
+  publishArtifact in (Compile, packageDoc) := false
 )
 
 lazy val executionTutorial = Project(
