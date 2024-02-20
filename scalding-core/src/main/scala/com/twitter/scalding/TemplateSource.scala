@@ -16,12 +16,30 @@ limitations under the License.
 package com.twitter.scalding
 
 import cascading.tap.hadoop.Hfs
-import cascading.tap.hadoop.{ TemplateTap => HTemplateTap }
+import cascading.tap.hadoop.{ PartitionTap => HPartitionTap }
 import cascading.tap.local.FileTap
-import cascading.tap.local.{ TemplateTap => LTemplateTap }
+import cascading.tap.local.{ PartitionTap => LPartitionTap }
+import cascading.tap.partition.{ Partition, DelimitedPartition }
 import cascading.tap.SinkMode
 import cascading.tap.Tap
 import cascading.tuple.Fields
+
+/**
+ * kmchale note: TemplateTap was replaced with PartitionTap, which applies
+ * a little more structure by disallowing generic java Formatter string input.
+ *
+ * We can build a bridge here, as long as all existing use cases apply
+ * templates of the form '%s/%s/.../%s'.  But we'll check that of course.
+ */
+object TemplatePartition {
+  def apply(template: String, fields: Fields): Partition = {
+    if (template.split('/').exists(_ != "%s")) {
+      throw new Exception(
+        s"Unexpected template format: $template (expected: %s(/%s)*)")
+    }
+    new DelimitedPartition(fields)
+  }
+}
 
 /**
  * This is a base class for template based output sources
@@ -34,6 +52,8 @@ abstract class TemplateSource extends SchemedSource with HfsTapProvider {
   def template: String
   // The fields to apply to the template.
   def pathFields: Fields = Fields.ALL
+
+  private lazy val partition: Partition = TemplatePartition(template, pathFields)
 
   /**
    * Creates the template tap.
@@ -50,15 +70,15 @@ abstract class TemplateSource extends SchemedSource with HfsTapProvider {
         mode match {
           case Local(_) => {
             val localTap = new FileTap(localScheme, basePath, sinkMode)
-            new LTemplateTap(localTap, template, pathFields)
+            new LPartitionTap(localTap, partition)
           }
           case hdfsMode @ Hdfs(_, _) => {
             val hfsTap = createHfsTap(hdfsScheme, basePath, sinkMode)
-            new HTemplateTap(hfsTap, template, pathFields)
+            new HPartitionTap(hfsTap, partition)
           }
           case hdfsTest @ HadoopTest(_, _) => {
             val hfsTap = createHfsTap(hdfsScheme, hdfsTest.getWritePathFor(this), sinkMode)
-            new HTemplateTap(hfsTap, template, pathFields)
+            new HPartitionTap(hfsTap, partition)
           }
           case _ => TestTapFactory(this, hdfsScheme).createTap(readOrWrite)
         }

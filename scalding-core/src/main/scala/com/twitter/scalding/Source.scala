@@ -28,6 +28,7 @@ import cascading.tuple.{ Fields, Tuple => CTuple, TupleEntry, TupleEntryCollecto
 
 import cascading.pipe.Pipe
 
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.InputFormat
 import org.apache.hadoop.mapred.InputSplit
 import org.apache.hadoop.mapred.JobConf
@@ -66,7 +67,7 @@ class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader
 
   override def getModifiedTime(conf: JobConf): Long = 0L
 
-  override def openForRead(flow: FlowProcess[JobConf], input: RecordReader[_, _]): TupleEntryIterator = throw new InvalidSourceException("Encountered InvalidSourceTap!", e)
+  override def openForRead(flow: FlowProcess[_ <: JobConf], input: RecordReader[_, _]): TupleEntryIterator = throw new InvalidSourceException("Encountered InvalidSourceTap!", e)
 
   override def resourceExists(conf: JobConf): Boolean = false
 
@@ -81,7 +82,7 @@ class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader
   // 4. source.validateTaps (throws InvalidSourceException)
   // In the worst case if the flow plan is misconfigured,
   // openForRead on mappers should fail when using this tap.
-  override def sourceConfInit(flow: FlowProcess[JobConf], conf: JobConf): Unit = {
+  override def sourceConfInit(flow: FlowProcess[_ <: JobConf], conf: JobConf): Unit = {
     conf.setInputFormat(classOf[InvalidInputFormat])
     super.sourceConfInit(flow, conf)
   }
@@ -111,13 +112,13 @@ case object Write extends AccessMode
 
 object HadoopSchemeInstance {
   def apply(scheme: Scheme[_, _, _, _, _]) =
-    scheme.asInstanceOf[Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _]]
+    scheme.asInstanceOf[Scheme[Configuration, RecordReader[_, _], OutputCollector[_, _], _, _]]
 }
 
 object CastHfsTap {
   // The scala compiler has problems with the generics in Cascading
-  def apply(tap: Hfs): Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]] =
-    tap.asInstanceOf[Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]]]
+  def apply(tap: Hfs): Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]] =
+    tap.asInstanceOf[Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]]
 }
 
 /**
@@ -288,7 +289,7 @@ class NullTap[Config, Input, Output, SourceContext, SinkContext]
     SinkMode.UPDATE) {
 
   def getIdentifier = "nullTap"
-  def openForWrite(flowProcess: FlowProcess[Config], output: Output) =
+  def openForWrite(flowProcess: FlowProcess[_ <: Config], output: Output) =
     new TupleEntryCollector {
       override def add(te: TupleEntry): Unit = ()
       override def add(t: CTuple): Unit = ()
