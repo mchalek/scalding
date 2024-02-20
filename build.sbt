@@ -23,8 +23,8 @@ val cascadingAvroVersion = "2.1.2"
 val chillVersion = "0.8.4"
 val elephantbirdVersion = "4.15"
 val hadoopLzoVersion = "0.4.19"
-val hadoopVersion = "2.5.0"
-val hbaseVersion = "0.94.10"
+val hadoopVersion = "3.3.6"
+val hbaseVersion = "2.5.7-hadoop3"
 val hravenVersion = "0.9.17.t05"
 val jacksonVersion = "2.8.7"
 val json4SVersion = "3.5.0"
@@ -52,9 +52,9 @@ val sharedSettings = assemblySettings ++ scalariformSettings ++ Seq(
 
   ScalariformKeys.preferences := formattingPreferences,
 
-  javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
+  javacOptions ++= Seq("-source", "11", "-target", "11"),
 
-  javacOptions in doc := Seq("-source", "1.6"),
+  javacOptions in doc := Seq("-source", "11"),
 
   wartremoverErrors in (Compile, compile) += Wart.OptionPartial,
 
@@ -291,10 +291,10 @@ lazy val scaldingArgs = module("args")
 lazy val scaldingDate = module("date")
 
 lazy val cascadingVersion =
-  System.getenv.asScala.getOrElse("SCALDING_CASCADING_VERSION", "2.6.1")
+  System.getenv.asScala.getOrElse("SCALDING_CASCADING_VERSION", "4.5.1")
 
 lazy val cascadingJDBCVersion =
-  System.getenv.asScala.getOrElse("SCALDING_CASCADING_JDBC_VERSION", "2.6.0")
+  System.getenv.asScala.getOrElse("SCALDING_CASCADING_JDBC_VERSION", "4.5.1")
 
 lazy val scaldingBenchmarks = module("benchmarks")
   .settings(
@@ -309,7 +309,8 @@ lazy val scaldingBenchmarks = module("benchmarks")
 lazy val scaldingCore = module("core").settings(
   libraryDependencies ++= Seq(
     "cascading" % "cascading-core" % cascadingVersion,
-    "cascading" % "cascading-hadoop" % cascadingVersion,
+    "cascading" % "cascading-hadoop3-common" % cascadingVersion,
+    "cascading" % "cascading-hadoop3-mr1" % cascadingVersion,
     "cascading" % "cascading-local" % cascadingVersion,
     "com.twitter" % "chill-hadoop" % chillVersion,
     "com.twitter" % "chill-java" % chillVersion,
@@ -327,6 +328,18 @@ lazy val scaldingCore = module("core").settings(
     "org.slf4j" % "slf4j-log4j12" % slf4jVersion % "provided"),
   addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)
 ).dependsOn(scaldingArgs, scaldingDate, scaldingSerialization, maple)
+
+lazy val scaldingEtsy = project.aggregate(
+    scaldingArgs,
+    scaldingCore,
+    scaldingDate,
+    scaldingJson,
+    scaldingParquet,
+    scaldingParquetScrooge,
+    scaldingParquetScroogeFixtures,
+    scaldingSerialization,
+    maple
+  )
 
 lazy val scaldingCommons = module("commons").settings(
   libraryDependencies ++= Seq(
@@ -443,6 +456,9 @@ lazy val scaldingHRaven = module("hraven").settings(
       exclude("com.twitter.common", "args")
       exclude("com.twitter.common", "application"),
     "org.apache.hbase" % "hbase" % hbaseVersion,
+    "org.apache.hbase" % "hbase-client" % hbaseVersion,
+    "org.apache.hbase" % "hbase-common" % hbaseVersion,
+    "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion,
     "org.slf4j" % "slf4j-api" % slf4jVersion,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided"
   )
@@ -541,7 +557,11 @@ lazy val maple = Project(
   libraryDependencies ++= Seq(
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided",
     "org.apache.hbase" % "hbase" % hbaseVersion % "provided",
-    "cascading" % "cascading-hadoop" % cascadingVersion
+    "org.apache.hbase" % "hbase-client" % hbaseVersion,
+    "org.apache.hbase" % "hbase-common" % hbaseVersion,
+    "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion,
+    "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+    "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
   )
 )
 
@@ -557,7 +577,8 @@ lazy val executionTutorial = Project(
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
     "org.slf4j" % "slf4j-api" % slf4jVersion,
     "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-    "cascading" % "cascading-hadoop" % cascadingVersion
+    "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+    "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
   )
 ).dependsOn(scaldingCore)
 
