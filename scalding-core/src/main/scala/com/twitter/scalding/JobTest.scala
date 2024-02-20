@@ -188,6 +188,8 @@ class JobTest(cons: (Args) => Job) {
         conf.set("cascading.flow.job.pollinginterval", "5")
         // Work around for local hadoop race
         conf.set("mapred.local.dir", "/tmp/hadoop/%s/mapred/local".format(java.util.UUID.randomUUID))
+        // disable _SUCCESS file outputs from test jobs
+        conf.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
         HadoopTest(conf, sourceMap)
       } else {
         Test(sourceMap)
