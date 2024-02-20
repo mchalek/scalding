@@ -70,7 +70,7 @@ val sharedSettings = assemblySettings ++ scalariformSettings ++ Seq(
     Opts.resolver.mavenLocalFile,
     Opts.resolver.sonatypeSnapshots,
     Opts.resolver.sonatypeReleases,
-    "Concurrent Maven Repo" at "http://conjars.org/repo",
+    "Concurrent Maven Repo" at "https://conjars.wensel.net/repo",
     "Twitter Maven" at "http://maven.twttr.com",
     "Cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
   ),
