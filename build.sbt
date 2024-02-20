@@ -415,7 +415,8 @@ lazy val scaldingParquetScroogeFixtures = module("parquet-scrooge-fixtures")
       "com.twitter" %% "scrooge-serializer" % scroogeVersion % "provided"
         exclude("com.google.guava", "guava"),
       "commons-lang" % "commons-lang" % apacheCommonsVersion, // needed for HashCodeBuilder used in thriftjava
-      "org.apache.thrift" % "libthrift" % thriftVersion
+      "org.apache.thrift" % "libthrift" % thriftVersion,
+      "javax.annotation" % "javax.annotation-api" % "1.3.2" % "test" // needed for Generated annotation
   )
 )
 
@@ -433,7 +434,6 @@ lazy val scaldingParquetScrooge = module("parquet-scrooge")
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided",
       "com.novocode" % "junit-interface" % "0.11" % "test",
       "junit" % "junit" % junitVersion % "test"
-
     )
 ).dependsOn(scaldingCore, scaldingParquet % "compile->compile;test->test", scaldingParquetScroogeFixtures % "test->test")
 
