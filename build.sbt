@@ -308,10 +308,10 @@ lazy val scaldingBenchmarks = module("benchmarks")
 
 lazy val scaldingCore = module("core").settings(
   libraryDependencies ++= Seq(
-    "cascading" % "cascading-core" % cascadingVersion,
-    "cascading" % "cascading-hadoop3-common" % cascadingVersion,
-    "cascading" % "cascading-hadoop3-mr1" % cascadingVersion,
-    "cascading" % "cascading-local" % cascadingVersion,
+    "net.wensel" % "cascading-core" % cascadingVersion,
+    "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+    "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion,
+    "net.wensel" % "cascading-local" % cascadingVersion,
     "com.twitter" % "chill-hadoop" % chillVersion,
     "com.twitter" % "chill-java" % chillVersion,
     "com.twitter" %% "chill-bijection" % chillVersion,
