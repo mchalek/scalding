@@ -458,6 +458,7 @@ lazy val scaldingHRaven = module("hraven").settings(
     "org.apache.hbase" % "hbase" % hbaseVersion,
     "org.apache.hbase" % "hbase-client" % hbaseVersion,
     "org.apache.hbase" % "hbase-common" % hbaseVersion,
+    "org.apache.hbase" % "hbase-server" % hbaseVersion,
     "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion,
     "org.slf4j" % "slf4j-api" % slf4jVersion,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided"
@@ -559,6 +560,7 @@ lazy val maple = Project(
     "org.apache.hbase" % "hbase" % hbaseVersion % "provided",
     "org.apache.hbase" % "hbase-client" % hbaseVersion,
     "org.apache.hbase" % "hbase-common" % hbaseVersion,
+    "org.apache.hbase" % "hbase-server" % hbaseVersion,
     "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion,
     "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
     "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
