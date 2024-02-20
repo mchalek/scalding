@@ -556,11 +556,6 @@ lazy val maple = Project(
   publishArtifact := !scalaVersion.value.startsWith("2.10"),
   libraryDependencies ++= Seq(
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided",
-    "org.apache.hbase" % "hbase" % hbaseVersion % "provided",
-    "org.apache.hbase" % "hbase-client" % hbaseVersion,
-    "org.apache.hbase" % "hbase-common" % hbaseVersion,
-    "org.apache.hbase" % "hbase-server" % hbaseVersion,
-    "org.apache.hbase" % "hbase-mapreduce" % hbaseVersion,
     "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
     "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
   ),
