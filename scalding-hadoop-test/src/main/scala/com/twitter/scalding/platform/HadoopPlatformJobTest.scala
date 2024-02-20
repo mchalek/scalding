@@ -63,7 +63,7 @@ case class HadoopPlatformJobTest(
     checkSinks()
     flowCheckers.foreach { checker =>
       job.completedFlow.collect {
-        case f: Flow[JobConf] => checker(f)
+        case f: Flow[_] => checker(f.asInstanceOf[Flow[JobConf]])
       }
     }
   }
