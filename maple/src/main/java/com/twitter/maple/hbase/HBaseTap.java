@@ -25,8 +25,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -52,7 +54,7 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
   public static final String SCHEME = "hbase";
 
   /** Field hBaseAdmin */
-  private transient HBaseAdmin hBaseAdmin;
+  private transient Admin hBaseAdmin;
 
   /** Field hostName */
   private String quorumNames;
@@ -134,17 +136,17 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
     return new Path(SCHEME + ":/" + tableName.replaceAll(":", "_"));
   }
 
-  protected HBaseAdmin getHBaseAdmin(JobConf conf) throws MasterNotRunningException, ZooKeeperConnectionException {
+  protected Admin getHBaseAdmin(JobConf conf) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
     if (hBaseAdmin == null) {
       Configuration hbaseConf = HBaseConfiguration.create(conf);
-      hBaseAdmin = new HBaseAdmin(hbaseConf);
+      hBaseAdmin = ConnectionFactory.createConnection(hbaseConf).getAdmin();
     }
 
     return hBaseAdmin;
   }
 
   @Override
-  public void sinkConfInit(FlowProcess<JobConf> process, JobConf conf) {
+  public void sinkConfInit(FlowProcess<? extends JobConf> process, JobConf conf) {
     if (quorumNames != null) {
       conf.set("hbase.zookeeper.quorum", quorumNames);
     } else {
@@ -183,12 +185,12 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
   }
 
   @Override
-  public TupleEntryIterator openForRead(FlowProcess<JobConf> jobConfFlowProcess, RecordReader recordReader) throws IOException {
+  public TupleEntryIterator openForRead(FlowProcess<? extends JobConf> jobConfFlowProcess, RecordReader recordReader) throws IOException {
     return new HadoopTupleEntrySchemeIterator(jobConfFlowProcess, this, recordReader);
   }
 
   @Override
-  public TupleEntryCollector openForWrite(FlowProcess<JobConf> jobConfFlowProcess, OutputCollector outputCollector) throws IOException {
+  public TupleEntryCollector openForWrite(FlowProcess<? extends JobConf> jobConfFlowProcess, OutputCollector outputCollector) throws IOException {
     HBaseTapCollector hBaseCollector = new HBaseTapCollector( jobConfFlowProcess, this );
     hBaseCollector.prepare();
     return hBaseCollector;
@@ -196,15 +198,15 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
 
   @Override
   public boolean createResource(JobConf jobConf) throws IOException {
-    HBaseAdmin hBaseAdmin = getHBaseAdmin(jobConf);
+    Admin hBaseAdmin = getHBaseAdmin(jobConf);
 
-    if (hBaseAdmin.tableExists(tableName)) {
+    if (hBaseAdmin.tableExists(TableName.valueOf(tableName))) {
       return true;
     }
 
     LOG.info("creating hbase table: {}", tableName);
 
-    HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+    HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
 
     String[] familyNames = ((HBaseScheme) getScheme()).getFamilyNames();
 
@@ -225,7 +227,7 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
 
   @Override
   public boolean resourceExists(JobConf jobConf) throws IOException {
-    return getHBaseAdmin(jobConf).tableExists(tableName);
+    return getHBaseAdmin(jobConf).tableExists(TableName.valueOf(tableName));
   }
 
   @Override
@@ -235,7 +237,7 @@ public class HBaseTap extends Tap<JobConf, RecordReader, OutputCollector> {
   }
 
   @Override
-  public void sourceConfInit(FlowProcess<JobConf> process, JobConf conf) {
+  public void sourceConfInit(FlowProcess<? extends JobConf> process, JobConf conf) {
     // a hack for MultiInputFormat to see that there is a child format
     FileInputFormat.setInputPaths( conf, getPath() );
 

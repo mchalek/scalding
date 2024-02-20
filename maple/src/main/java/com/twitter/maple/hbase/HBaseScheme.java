@@ -240,7 +240,7 @@ public class HBaseScheme
   }
 
   @Override
-  public void sourceConfInit(FlowProcess<JobConf> process,
+  public void sourceConfInit(FlowProcess<? extends JobConf> process,
       Tap<JobConf, RecordReader, OutputCollector> tap, JobConf conf) {
     conf.setInputFormat(TableInputFormat.class);
 
