@@ -66,7 +66,7 @@ object Mode {
   val CascadingFlowConnectorClassKey = "cascading.flow.connector.class"
   val CascadingFlowProcessClassKey = "cascading.flow.process.class"
 
-  val DefaultHadoopFlowConnector = "cascading.flow.hadoop.HadoopFlowConnector"
+  val DefaultHadoopFlowConnector = "cascading.flow.hadoop2.Hadoop2MR1FlowConnector"
   val DefaultHadoopFlowProcess = "cascading.flow.hadoop.HadoopFlowProcess"
 
   val DefaultHadoop2Mr1FlowConnector = "cascading.flow.hadoop2.Hadoop2MR1FlowConnector"
